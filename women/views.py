@@ -42,33 +42,27 @@ def login(request):
     return render(request, 'women/base.html', {'menu': menu, 'title': 'О сайте'})
 
 
-def show_post(request, post_id):
-    post = get_object_or_404(Women, pk=post_id)
+def show_post(request, post_slug):
+    post = get_object_or_404(Women, slug=post_slug)
     context = {
         'post': post,
         'menu': menu,
         'title': post.title,
-        'cat_selected': post.cat_id,
+        'cat_selected': post.slug,
     }
     return render(request, 'women/post.html', context=context)
 
 
-def show_category(request, cat_id):
-    posts = Women.objects.filter(cat_id=cat_id)
-    # cats = Category.objects.all()
-
-    if len(posts) == 0:
-        raise Http404
-
+def show_category(request, cat_slug):
+    posts = Women.objects.filter(cat__slug=cat_slug)
     context = {
         'posts': posts,
         # 'cats': cats,
         'menu': menu,
         'title': 'Отображение по рубрикам',
-        'cat_selected': cat_id
+        'cat_selected': cat_slug
     }
     return render(request, 'women/index.html', context=context)
-    # return HttpResponse(f"Отображение категории с id = {cat_id}")
 
 
 def pageNotFound(request, exception):
