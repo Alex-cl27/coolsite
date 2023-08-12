@@ -1,6 +1,6 @@
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 
 from .forms import *
 from .models import *
@@ -70,15 +70,28 @@ def login(request):
     return render(request, 'women/base.html', {'menu': menu, 'title': 'О сайте'})
 
 
-def show_post(request, post_slug):
-    post = get_object_or_404(Women, slug=post_slug)
-    context = {
-        'post': post,
-        'menu': menu,
-        'title': post.title,
-        'cat_selected': post.slug,
-    }
-    return render(request, 'women/post.html', context=context)
+class ShowPost(DetailView):
+    model = Women
+    template_name = 'women/post.html'
+    slug_url_kwarg = 'post_slug'
+    context_object_name = 'post'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = context['post']
+        context['menu'] = menu
+        return context
+
+
+# def show_post(request, post_slug):
+#     post = get_object_or_404(Women, slug=post_slug)
+#     context = {
+#         'post': post,
+#         'menu': menu,
+#         'title': post.title,
+#         'cat_selected': post.slug,
+#     }
+#     return render(request, 'women/post.html', context=context)
 
 
 # Отображение категорий ('catgory/<slug:cat_slug>/')
