@@ -4,17 +4,11 @@ from django.views.generic import ListView, DetailView, CreateView
 
 from .forms import *
 from .models import *
-
-menu = [
-    {'title': "О сайте", 'url_name': 'about'},
-    {'title': "Добавить статью", 'url_name': 'add_page'},
-    {'title': "Обратная связь", 'url_name': 'contact'},
-    {'title': "Войти", 'url_name': 'login'}
-]
+from .utils import *
 
 
 # Отображение домашней страницы ("")
-class WomenHome(ListView):
+class WomenHome(DataMixin, ListView):
     model = Women
     template_name = 'women/index.html'
     context_object_name = 'posts'
@@ -23,10 +17,8 @@ class WomenHome(ListView):
     # Для динамического (и статического) контента объявляется функция get_context_data
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['menu'] = menu
-        context['title'] = 'Главная страница'
-        context['cat_selected'] = 0     # Выбрана "Все категории"
-        return context
+        c_def = self.get_user_context(title='Главная страница')     # Из .utils.DataMixin
+        return dict(list(context.items()) + list(c_def.items()))
 
     # Отображать только "is_published=True"
     def get_queryset(self):
@@ -38,15 +30,14 @@ def about(request):
 
 
 # Создание статьи ('add_page/')
-class AddPage(CreateView):
+class AddPage(DataMixin, CreateView):
     form_class = AddPostForm
     template_name = 'women/addpage.html'
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Добавление статьи'
-        context['menu'] = menu
-        return context
+        c_def = self.get_user_context(title='Добавление статьи')     # Из .utils.DataMixin
+        return dict(list(context.items()) + list(c_def.items()))
 
 
 def contact(request):
@@ -57,7 +48,7 @@ def login(request):
     return render(request, 'women/base.html', {'menu': menu, 'title': 'О сайте'})
 
 
-class ShowPost(DetailView):
+class ShowPost(DataMixin, DetailView):
     model = Women
     template_name = 'women/post.html'
     slug_url_kwarg = 'post_slug'
@@ -65,13 +56,12 @@ class ShowPost(DetailView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = context['post']
-        context['menu'] = menu
-        return context
+        c_def = self.get_user_context(title=context['post'])     # Из .utils.DataMixin
+        return dict(list(context.items()) + list(c_def.items()))
 
 
 # Отображение категорий ('catgory/<slug:cat_slug>/')
-class WomenCategory(ListView):
+class WomenCategory(DataMixin, ListView):
     model = Women
     template_name = 'women/index.html'
     context_object_name = 'posts'
@@ -80,10 +70,9 @@ class WomenCategory(ListView):
     # Для динамического (и статического) контента объявляется функция get_context_data
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['menu'] = menu
-        context['title'] = 'Категория - ' + str(context['posts'][0].cat)
-        context['cat_selected'] = context['posts'][0].cat_id     # Выбраная категория
-        return context
+        c_def = self.get_user_context(title='Категория - ' + str(context['posts'][0].cat),
+                                      cat_selected=context['posts'][0].cat_id)     # Из .utils.DataMixin
+        return dict(list(context.items()) + list(c_def.items()))
 
     # Отображение (фильтр) только выбранной категории и "is_published=True"
     def get_queryset(self):
