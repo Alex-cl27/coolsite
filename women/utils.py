@@ -1,3 +1,5 @@
+from django.db.models import Count
+
 from .models import *
 
 menu = [
@@ -11,7 +13,8 @@ menu = [
 class DataMixin:
     def get_user_context(self, **kwargs):
         context = kwargs
-        cats = Category.objects.all()
+        # cats = Category.objects.all()     # Все объекты
+        cats = Category.objects.annotate(Count('women'))    # Количество постов, связанных с рубрикой
         # context['menu'] = menu
         user_menu = menu.copy()         # скрывает "Добавить статью" для неавторизованных
         if not self.request.user.is_authenticated:
