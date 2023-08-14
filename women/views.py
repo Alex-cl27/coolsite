@@ -1,6 +1,8 @@
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import *
 from .models import *
@@ -30,9 +32,12 @@ def about(request):
 
 
 # Создание статьи ('add_page/')
-class AddPage(DataMixin, CreateView):
+class AddPage(LoginRequiredMixin, DataMixin, CreateView):
     form_class = AddPostForm
     template_name = 'women/addpage.html'
+    success_url = reverse_lazy('home')      # В случае успеха отправляет на 'home'
+    login_url = reverse_lazy('home')        # Перенаправляет неавторизованных на 'home'
+    raise_exception = True                  # Генерировать 403 для неавторизованных
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
