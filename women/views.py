@@ -11,7 +11,6 @@ from .utils import *
 
 # Отображение домашней страницы ("")
 class WomenHome(DataMixin, ListView):
-    paginate_by = 3     # включает пагинацию по 3 элемента. класс ListView уже содержит в себе пагинатор
     model = Women
     template_name = 'women/index.html'
     context_object_name = 'posts'
@@ -68,7 +67,6 @@ class ShowPost(DataMixin, DetailView):
 
 # Отображение категорий ('catgory/<slug:cat_slug>/')
 class WomenCategory(DataMixin, ListView):
-    paginate_by = 3     # включает пагинацию по 3 элемента. класс ListView уже содержит в себе пагинатор
     model = Women
     template_name = 'women/index.html'
     context_object_name = 'posts'

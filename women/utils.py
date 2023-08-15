@@ -11,6 +11,8 @@ menu = [
 
 
 class DataMixin:
+    paginate_by = 3     # Включает пагинацию по 3 элемента. Класс ListView уже содержит в себе пагинатор
+
     def get_user_context(self, **kwargs):
         context = kwargs
         # cats = Category.objects.all()     # Все объекты
