@@ -3,12 +3,25 @@ from django.contrib.auth.views import LoginView
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import *
 from .models import *
 from .utils import *
+
+
+def logout_user(request):
+    logout(request)
+    return redirect('login')
+
+
+def pageNotFound(request, exception):
+    return HttpResponseNotFound('<h1>Страница не найдена</h1>')
+
+
+def about(request):
+    return render(request, 'women/about.html', {'menu': menu, 'title': 'О сайте'})
 
 
 # Отображение домашней страницы ("")
@@ -30,10 +43,6 @@ class WomenHome(DataMixin, ListView):
         return Women.objects.filter(is_published=True).select_related('cat')
 
 
-def about(request):
-    return render(request, 'women/about.html', {'menu': menu, 'title': 'О сайте'})
-
-
 # Создание статьи ('add_page/')
 class AddPage(LoginRequiredMixin, DataMixin, CreateView):
     form_class = AddPostForm
@@ -48,14 +57,19 @@ class AddPage(LoginRequiredMixin, DataMixin, CreateView):
         return dict(list(context.items()) + list(c_def.items()))
 
 
-def contact(request):
-    # return render(request, 'women/base.html', {'menu': menu, 'title': 'Обратная связь'})
-    return HttpResponse("Обратная связь")
+class ContactFormView(DataMixin, FormView):
+    form_class = ContactForm
+    template_name = 'women/contact.html'
+    success_url = reverse_lazy('home')
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title="Обратная связь")
+        return dict(list(context.items()) + list(c_def.items()))
 
-# def login(request):
-#     # return render(request, 'women/base.html', {'menu': menu, 'title': 'Авторизация'})
-#     return HttpResponse("Авторизация")
+    def form_valid(self, form):
+        print(form.cleaned_data)
+        return redirect('home')
 
 
 class ShowPost(DataMixin, DetailView):
@@ -91,10 +105,6 @@ class WomenCategory(DataMixin, ListView):
         return Women.objects.filter(cat__slug=self.kwargs['cat_slug'], is_published=True).select_related('cat')
 
 
-def pageNotFound(request, exception):
-    return HttpResponseNotFound('<h1>Страница не найдена</h1>')
-
-
 class RegisterUser(DataMixin, CreateView):
     form_class = RegisterUserForm
     template_name = 'women/register.html'
@@ -124,8 +134,3 @@ class LoginUser(DataMixin, LoginView):
     # Логин редирект. Дублируется в settings.LOGIN_REDIRECT
     def get_success_url(self):
         return reverse_lazy('home')
-
-
-def logout_user(request):
-    logout(request)
-    return redirect('login')

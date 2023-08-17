@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'captcha',              # captcha
     'debug_toolbar',        # Django debug toolbar
     'women.apps.WomenConfig'
 ]
