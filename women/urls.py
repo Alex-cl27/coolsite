@@ -5,7 +5,7 @@ from .views import *
 
 urlpatterns = [
     # Отображение классом, метод ".as_view()" обязателен; cache_page(60) - кэш-страница
-    path('', cache_page(60)(WomenHome.as_view()), name='home'),
+    path('', WomenHome.as_view(), name='home'),
 
     path('about/', about, name='about'),
     path('add_page/', AddPage.as_view(), name='add_page'),
