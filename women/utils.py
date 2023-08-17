@@ -1,4 +1,5 @@
 from django.db.models import Count
+from django.core.cache import cache
 
 from .models import *
 
@@ -14,8 +15,15 @@ class DataMixin:
 
     def get_user_context(self, **kwargs):
         context = kwargs
+
         # cats = Category.objects.all()     # Все объекты
-        cats = Category.objects.annotate(Count('women'))    # Количество постов, связанных с рубрикой
+
+        # low-level cache API:
+        cats = cache.get('cats')
+        if not cats:
+            cats = Category.objects.annotate(Count('women'))    # Метод annotate() Добавляет дополнительные атрибуты, в данном случае - annotate(count()) количество постов, связанных с рубрикой
+            cache.set('cats', cats, 60)
+
         # context['menu'] = menu
         user_menu = menu.copy()         # скрывает "Добавить статью" для неавторизованных
         if not self.request.user.is_authenticated:
