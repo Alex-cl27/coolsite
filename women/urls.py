@@ -7,7 +7,7 @@ urlpatterns = [
     # Отображение классом, метод ".as_view()" обязателен; cache_page(60) - кэш-страница
     path('', WomenHome.as_view(), name='home'),
 
-    path('about/', about, name='about'),
+    path('about/', About.as_view(), name='about'),
     path('add_page/', AddPage.as_view(), name='add_page'),
     path('contact/', ContactFormView.as_view(), name='contact'),
     path('login/', LoginUser.as_view(), name='login'),

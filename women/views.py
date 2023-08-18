@@ -3,7 +3,7 @@ from django.contrib.auth.views import LoginView
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, FormView
+from django.views.generic import ListView, DetailView, CreateView, FormView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import *
@@ -20,8 +20,13 @@ def pageNotFound(request, exception):
     return HttpResponseNotFound('<h1>Страница не найдена</h1>')
 
 
-def about(request):
-    return render(request, 'women/about.html', {'menu': menu, 'title': 'О сайте'})
+class About(DataMixin, TemplateView):
+    template_name = 'women/about.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title='О сайте')     # Из .utils.DataMixin
+        return dict(list(context.items()) + list(c_def.items()))
 
 
 # Отображение домашней страницы ("")
